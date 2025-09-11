@@ -8,7 +8,7 @@ export const GET = async () => {
 
   // Test OpenAI
   const completion = await openai.chat.completions.create({
-    model: "gpt-4o-mini",
+    model: process.env.OPEN_AI_MODEL!,
     messages: [{ role: "user", content: "Say hello from the ecommerce dashboard setup!" }],
   });
 
