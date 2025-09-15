@@ -8,13 +8,12 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import {
   Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
-  FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { DataTable, productColumns } from "@/components/data-table";
 
 export const inputSchema = z.object({
   formInput: z
@@ -31,6 +30,7 @@ export default function Home() {
   });
 
   const [result, setResult] = useState<any>(null);
+  const [products, setProducts] = useState<any>(null);
 
   const onSubmit = async (values: InputSchema) => {
     console.log(JSON.stringify(values));
@@ -44,9 +44,28 @@ export default function Home() {
     console.log(data);
   };
 
+  useEffect(() => {
+    const fetchProducts = async () => {
+      const res = await fetch("/api/retrieve-products");
+      const data = await res.json();
+      setProducts(data.supabase);
+    };
+    fetchProducts();
+  }, []);
+
   return (
     <div className="font-sans grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20">
       <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
+        {products && (
+          <div className="w-full">
+            <DataTable
+              columns={productColumns}
+              data={products}
+              title="Products"
+            />
+          </div>
+        )}
+
         <div className="w-lg flex flex-col items-baseline justify-center gap-4">
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
