@@ -15,6 +15,8 @@ import { useEffect, useState } from "react";
 import { DataTable, productColumns } from "@/components/data-table";
 import { DashboardHeader } from "@/components/dashboard-header";
 import { EditProduct } from "@/components/edit-product";
+import { productSchema } from "@/schemas";
+import { Label } from "@radix-ui/react-label";
 
 export const inputSchema = z.object({
   formInput: z
@@ -45,12 +47,24 @@ export default function Home() {
     console.log(data);
   };
 
+  const onSubmitEdit = async (values: z.infer<typeof productSchema>) => {
+    const res = await fetch("/api/add-product", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ product: values }),
+    });
+    const data = await res.json();
+    console.log(data);
+    fetchProducts();
+  };
+
+  const fetchProducts = async () => {
+    const res = await fetch("/api/retrieve-products");
+    const data = await res.json();
+    setProducts(data.supabase);
+  };
+
   useEffect(() => {
-    const fetchProducts = async () => {
-      const res = await fetch("/api/retrieve-products");
-      const data = await res.json();
-      setProducts(data.supabase);
-    };
     fetchProducts();
   }, []);
 
@@ -64,8 +78,9 @@ export default function Home() {
         </div>
 
         <div className="w-1/2 bg-sidebar border-l border-sidebar-border h-screen flex flex-col overflow-auto ">
-          <div className="w-full p-4">
-            <EditProduct></EditProduct>
+          <div className="w-full flex font-medium flex-col gap-4 p-4">
+            <Label>Add Product</Label>
+            <EditProduct onSubmit={onSubmitEdit}></EditProduct>
           </div>
         </div>
       </div>

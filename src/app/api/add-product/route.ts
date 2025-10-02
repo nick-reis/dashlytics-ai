@@ -6,7 +6,8 @@ export const POST = async (req: Request) => {
     const { product } = await req.json();
     const { data: products, error } = await supabase
       .from("products")
-      .insert([product]);
+      .insert([product])
+      .select();
 
     if (error) {
       return NextResponse.json({ error: error.message }, { status: 400 });

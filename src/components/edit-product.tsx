@@ -1,3 +1,4 @@
+"use client";
 import React, { use, useEffect, useState } from "react";
 import { productSchema } from "@/schemas";
 import z from "zod";
@@ -8,7 +9,6 @@ import { Button } from "@/components/ui/button";
 import {
   Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -17,9 +17,19 @@ import {
 import { Input } from "@/components/ui/input";
 import { Textarea } from "./ui/textarea";
 import { NumberInput } from "./ui/number-input";
+import { Loader2 } from "lucide-react";
 
-export const EditProduct = () => {
-  type ProductSchema = z.infer<typeof productSchema>;
+type ProductSchema = z.infer<typeof productSchema>;
+
+type ProductFormProps = {
+  onSubmit: (values: ProductSchema) => Promise<void> | void;
+  initialValues?: Partial<ProductSchema>;
+};
+
+export const EditProduct: React.FC<ProductFormProps> = ({
+  onSubmit,
+  initialValues,
+}) => {
   const form = useForm<ProductSchema>({
     resolver: zodResolver(productSchema),
     defaultValues: {
@@ -31,24 +41,20 @@ export const EditProduct = () => {
     },
   });
 
-  const [result, setResult] = useState<any>(null);
-
-  const onSubmit = async (values: ProductSchema) => {
-    console.log(JSON.stringify(values));
-    const res = await fetch("/api/add-product", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ product: values }),
-    });
-    const data = await res.json();
-    setResult(data.summary);
-    console.log(data);
+  const handleSubmit = async (values: ProductSchema) => {
+    try {
+      setLoading(true);
+      await onSubmit(values);
+    } finally {
+      setLoading(false);
+    }
   };
+
+  const [loading, setLoading] = useState(false);
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
-        <FormLabel>Edit Product</FormLabel>
+      <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-5">
         <FormField
           control={form.control}
           name="name"
@@ -124,8 +130,17 @@ export const EditProduct = () => {
           )}
         />
         <div className="w-full flex justify-end items-center">
-          <Button className="" variant={"outline"} type="submit">
-            Save
+          <Button
+            disabled={loading}
+            className=""
+            variant={"outline"}
+            type="submit"
+          >
+            {loading ? (
+              <Loader2 className="mr-2 h-4 w-4 animate-spin"></Loader2>
+            ) : (
+              "Save"
+            )}
           </Button>
         </div>
       </form>
