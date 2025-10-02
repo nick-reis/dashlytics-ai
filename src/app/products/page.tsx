@@ -14,6 +14,7 @@ import {
 import { useEffect, useState } from "react";
 import { DataTable, productColumns } from "@/components/data-table";
 import { DashboardHeader } from "@/components/dashboard-header";
+import { EditProduct } from "@/components/edit-product";
 
 export const inputSchema = z.object({
   formInput: z
@@ -55,42 +56,16 @@ export default function Home() {
 
   return (
     <div className="w-full h-full">
-      <DashboardHeader title="Dashboard" />
+      <DashboardHeader title="Products" />
 
       <div className="flex flex-1">
-        <div className="w-3/4  "></div>
+        <div className="w-3/4  ">
+          <DataTable columns={productColumns} data={products || []} />
+        </div>
 
-        <div className="w-1/2 bg-sidebar border-l border-sidebar-border h-screen flex flex-col overflow-auto items-center justify-center">
+        <div className="w-1/2 bg-sidebar border-l border-sidebar-border h-screen flex flex-col overflow-auto ">
           <div className="w-full p-4">
-            <Form {...form}>
-              <form
-                onSubmit={form.handleSubmit(onSubmit)}
-                className="space-y-4"
-              >
-                <FormField
-                  control={form.control}
-                  name="formInput"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormControl>
-                        <Textarea
-                          className=""
-                          placeholder="Ask anything"
-                          {...field}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <Button variant={"outline"} type="submit">
-                  Submit
-                </Button>
-              </form>
-            </Form>
-            {result && (
-              <p className="text-sm p-4 my-4 border rounded-lg">{result}</p>
-            )}
+            <EditProduct></EditProduct>
           </div>
         </div>
       </div>
