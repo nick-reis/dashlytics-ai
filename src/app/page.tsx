@@ -19,7 +19,7 @@ export const inputSchema = z.object({
   formInput: z
     .string()
     .min(1, "Input is too short")
-    .max(100, "Input is too long"),
+    .max(1000, "Input is too long"),
 });
 
 type InputSchema = z.infer<typeof inputSchema>;
