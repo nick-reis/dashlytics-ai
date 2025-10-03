@@ -11,9 +11,9 @@ import {
   FormItem,
   FormMessage,
 } from "@/components/ui/form";
-import { useEffect, useState } from "react";
-import { DataTable, productColumns } from "@/components/data-table";
 import { DashboardHeader } from "@/components/dashboard-header";
+import { useAnalyzeQuery } from "@/hooks/useAnalyzeQuery";
+import { Loader2 } from "lucide-react";
 
 export const inputSchema = z.object({
   formInput: z
@@ -25,33 +25,15 @@ export const inputSchema = z.object({
 type InputSchema = z.infer<typeof inputSchema>;
 
 export default function Home() {
+  const { loading, error, runQuery, summary } = useAnalyzeQuery();
+
   const form = useForm<InputSchema>({
     resolver: zodResolver(inputSchema),
   });
 
-  const [result, setResult] = useState<any>(null);
-  const [products, setProducts] = useState<any>(null);
-
   const onSubmit = async (values: InputSchema) => {
-    console.log(JSON.stringify(values));
-    const res = await fetch("/api/query-sql", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ question: values.formInput }),
-    });
-    const data = await res.json();
-    setResult(data.summary);
-    console.log(data);
+    runQuery(JSON.stringify(values));
   };
-
-  useEffect(() => {
-    const fetchProducts = async () => {
-      const res = await fetch("/api/retrieve-products");
-      const data = await res.json();
-      setProducts(data.supabase);
-    };
-    fetchProducts();
-  }, []);
 
   return (
     <div className="w-full h-full">
@@ -83,13 +65,28 @@ export default function Home() {
                     </FormItem>
                   )}
                 />
-                <Button variant={"outline"} type="submit">
-                  Submit
+                <Button
+                  disabled={loading}
+                  className=""
+                  variant={"outline"}
+                  type="submit"
+                >
+                  {loading ? (
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin"></Loader2>
+                  ) : (
+                    "Submit"
+                  )}
                 </Button>
               </form>
             </Form>
-            {result && (
-              <p className="text-sm p-4 my-4 border rounded-lg">{result}</p>
+
+            {error && (
+              <p className="text-sm p-4 my-4 border rounded-lg text-destructive">
+                {error}
+              </p>
+            )}
+            {summary && (
+              <p className="text-sm p-4 my-4 border rounded-lg">{summary}</p>
             )}
           </div>
         </div>

@@ -1,22 +1,14 @@
 "use client";
-import { Textarea } from "@/components/ui/textarea";
-import { Button } from "@/components/ui/button";
 import z from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormMessage,
-} from "@/components/ui/form";
-import { useEffect, useState } from "react";
 import { DataTable, productColumns } from "@/components/data-table";
 import { DashboardHeader } from "@/components/dashboard-header";
 import { EditProduct } from "@/components/edit-product";
 import { productSchema } from "@/schemas";
 import { Label } from "@radix-ui/react-label";
+import { useProducts } from "@/hooks/useProducts";
+import { Loader2 } from "lucide-react";
 
 export const inputSchema = z.object({
   formInput: z
@@ -32,41 +24,7 @@ export default function Home() {
     resolver: zodResolver(inputSchema),
   });
 
-  const [result, setResult] = useState<any>(null);
-  const [products, setProducts] = useState<any>(null);
-
-  const onSubmit = async (values: InputSchema) => {
-    console.log(JSON.stringify(values));
-    const res = await fetch("/api/query-sql", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ question: values.formInput }),
-    });
-    const data = await res.json();
-    setResult(data.summary);
-    console.log(data);
-  };
-
-  const onSubmitEdit = async (values: z.infer<typeof productSchema>) => {
-    const res = await fetch("/api/add-product", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ product: values }),
-    });
-    const data = await res.json();
-    console.log(data);
-    fetchProducts();
-  };
-
-  const fetchProducts = async () => {
-    const res = await fetch("/api/retrieve-products");
-    const data = await res.json();
-    setProducts(data.supabase);
-  };
-
-  useEffect(() => {
-    fetchProducts();
-  }, []);
+  const { products, loading, error, createProduct } = useProducts();
 
   return (
     <div className="w-full h-full">
@@ -74,13 +32,17 @@ export default function Home() {
 
       <div className="flex flex-1">
         <div className="w-3/4  ">
-          <DataTable columns={productColumns} data={products || []} />
+          {loading ? (
+            <Loader2 className="mr-2 h-4 w-4 animate-spin"></Loader2>
+          ) : (
+            <DataTable columns={productColumns()} data={products || []} />
+          )}
         </div>
 
         <div className="w-1/2 bg-sidebar border-l border-sidebar-border h-screen flex flex-col overflow-auto ">
           <div className="w-full flex font-medium flex-col gap-4 p-4">
             <Label>Add Product</Label>
-            <EditProduct onSubmit={onSubmitEdit}></EditProduct>
+            <EditProduct onSubmit={createProduct}></EditProduct>
           </div>
         </div>
       </div>

@@ -14,7 +14,10 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
-export const productColumns: ColumnDef<Product>[] = [
+export const productColumns = (
+  onEdit?: (row: Product) => void,
+  onDelete?: (row: Product) => void
+): ColumnDef<Product>[] => [
   {
     id: "select",
     header: ({ table }) => (

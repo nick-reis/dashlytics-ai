@@ -13,3 +13,5 @@ export const productSchema = z.object({
     .refine((val) => !isNaN(val), { message: "Stock cannot be empty" }),
   category: z.string().min(1, "Input is too short"),
 });
+
+export type ProductSchema = z.infer<typeof productSchema>;

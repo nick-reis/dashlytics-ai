@@ -1,6 +1,6 @@
 "use client";
 import React, { use, useEffect, useState } from "react";
-import { productSchema } from "@/schemas";
+import { productSchema, ProductSchema } from "@/schemas";
 import z from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
@@ -18,8 +18,6 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "./ui/textarea";
 import { NumberInput } from "./ui/number-input";
 import { Loader2 } from "lucide-react";
-
-type ProductSchema = z.infer<typeof productSchema>;
 
 type ProductFormProps = {
   onSubmit: (values: ProductSchema) => Promise<void> | void;
