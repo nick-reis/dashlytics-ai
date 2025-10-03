@@ -5,10 +5,8 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { DataTable, productColumns } from "@/components/data-table";
 import { DashboardHeader } from "@/components/dashboard-header";
 import { EditProduct } from "@/components/edit-product";
-import { productSchema } from "@/schemas";
 import { Label } from "@radix-ui/react-label";
 import { useProducts } from "@/hooks/useProducts";
-import { Loader2 } from "lucide-react";
 
 export const inputSchema = z.object({
   formInput: z
@@ -24,7 +22,8 @@ export default function Home() {
     resolver: zodResolver(inputSchema),
   });
 
-  const { products, loading, error, createProduct } = useProducts();
+  const { products, loading, error, createProduct, initialLoading } =
+    useProducts();
 
   return (
     <div className="w-full h-full">
@@ -32,11 +31,11 @@ export default function Home() {
 
       <div className="flex flex-1">
         <div className="w-3/4  ">
-          {loading ? (
-            <Loader2 className="mr-2 h-4 w-4 animate-spin"></Loader2>
-          ) : (
-            <DataTable columns={productColumns()} data={products || []} />
-          )}
+          <DataTable
+            loading={initialLoading}
+            columns={productColumns()}
+            data={products || []}
+          />
         </div>
 
         <div className="w-1/2 bg-sidebar border-l border-sidebar-border h-screen flex flex-col overflow-auto ">

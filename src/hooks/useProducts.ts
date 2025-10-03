@@ -2,17 +2,15 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { getProducts, addProduct } from "@/app/actions";
-import { Product } from "@/types";
-import { productSchema } from "@/schemas";
-import z from "zod";
+import { ProductSchema } from "@/schemas";
 
 export function useProducts() {
   const [products, setProducts] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
+  const [initialLoading, setInitialLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   const fetchProducts = useCallback(async () => {
-    setLoading(true);
     setError(null);
     try {
       const data = await getProducts();
@@ -21,11 +19,11 @@ export function useProducts() {
       console.error("Failed to fetch products: ", err);
       setError(err.message ?? "Something went wrong");
     } finally {
-      setLoading(false);
+      setInitialLoading(false);
     }
   }, []);
 
-  async function createProduct(product: z.infer<typeof productSchema>) {
+  async function createProduct(product: ProductSchema) {
     setLoading(true);
     setError(null);
     try {
@@ -43,5 +41,12 @@ export function useProducts() {
     fetchProducts();
   }, [fetchProducts]);
 
-  return { products, refetch: fetchProducts, createProduct, loading, error };
+  return {
+    products,
+    refetch: fetchProducts,
+    createProduct,
+    loading,
+    initialLoading,
+    error,
+  };
 }
