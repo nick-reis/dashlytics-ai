@@ -15,6 +15,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import React from "react";
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
@@ -25,15 +26,21 @@ export function DataTable<TData, TValue>({
   columns,
   data,
 }: DataTableProps<TData, TValue>) {
+  const [rowSelection, setRowSelection] = React.useState({});
+
   const table = useReactTable({
     data,
     columns,
+    onRowSelectionChange: setRowSelection,
     getCoreRowModel: getCoreRowModel(),
+    state: {
+      rowSelection,
+    },
   });
 
   return (
     <div className="flex flex-col gap-2">
-      <div className="overflow-hidden rounded-md border">
+      <div className="overflow-hidden rounded-md border-b">
         <Table>
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
@@ -82,6 +89,10 @@ export function DataTable<TData, TValue>({
             )}
           </TableBody>
         </Table>
+      </div>
+      <div className="text-muted-foreground px-4 flex justify-end text-sm">
+        {table.getFilteredSelectedRowModel().rows.length} of{" "}
+        {table.getFilteredRowModel().rows.length} row(s) selected.
       </div>
     </div>
   );
