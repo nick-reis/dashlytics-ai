@@ -22,8 +22,15 @@ export default function Home() {
     resolver: zodResolver(inputSchema),
   });
 
-  const { products, loading, error, createProduct, initialLoading } =
-    useProducts();
+  const {
+    products,
+    loading,
+    error,
+    editProduct,
+    createProduct,
+    removeProducts,
+    initialLoading,
+  } = useProducts();
 
   return (
     <div className="w-full h-full">
@@ -33,7 +40,7 @@ export default function Home() {
         <div className="w-3/4  ">
           <DataTable
             loading={initialLoading}
-            columns={productColumns()}
+            columns={productColumns(removeProducts, editProduct)}
             data={products || []}
           />
         </div>

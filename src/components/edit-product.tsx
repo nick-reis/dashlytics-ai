@@ -18,19 +18,22 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "./ui/textarea";
 import { NumberInput } from "./ui/number-input";
 import { Loader2 } from "lucide-react";
+import { DialogClose } from "@radix-ui/react-dialog";
 
 type ProductFormProps = {
   onSubmit: (values: ProductSchema) => Promise<void> | void;
   initialValues?: Partial<ProductSchema>;
+  useDialog?: boolean;
 };
 
 export const EditProduct: React.FC<ProductFormProps> = ({
   onSubmit,
   initialValues,
+  useDialog = false,
 }) => {
   const form = useForm<ProductSchema>({
     resolver: zodResolver(productSchema),
-    defaultValues: {
+    defaultValues: initialValues ?? {
       name: "",
       description: "",
       price: 0,
@@ -103,6 +106,7 @@ export const EditProduct: React.FC<ProductFormProps> = ({
                   placeholder="$0 USD"
                   prefix="$"
                   suffix=" USD"
+                  value={field.value}
                   decimalScale={2}
                   onValueChange={(val) => field.onChange(val ?? undefined)}
                 ></NumberInput>
@@ -119,6 +123,7 @@ export const EditProduct: React.FC<ProductFormProps> = ({
               <FormLabel>Stock</FormLabel>
               <FormControl>
                 <NumberInput
+                  value={field.value}
                   placeholder="0"
                   onValueChange={(val) => field.onChange(val ?? undefined)}
                 ></NumberInput>
@@ -128,12 +133,14 @@ export const EditProduct: React.FC<ProductFormProps> = ({
           )}
         />
         <div className="w-full flex justify-end items-center">
-          <Button
-            disabled={loading}
-            className=""
-            variant={"outline"}
-            type="submit"
-          >
+          {useDialog && (
+            <DialogClose asChild>
+              <Button type="button" variant="outline">
+                Cancel
+              </Button>
+            </DialogClose>
+          )}
+          <Button disabled={loading} className="" type="submit">
             {loading ? (
               <Loader2 className="mr-2 h-4 w-4 animate-spin"></Loader2>
             ) : (

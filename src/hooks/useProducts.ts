@@ -1,8 +1,14 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { getProducts, addProduct } from "@/app/actions";
+import {
+  getProducts,
+  addProduct,
+  deleteProducts,
+  updateProduct,
+} from "@/app/actions";
 import { ProductSchema } from "@/schemas";
+import { set } from "zod";
 
 export function useProducts() {
   const [products, setProducts] = useState<any[]>([]);
@@ -23,6 +29,20 @@ export function useProducts() {
     }
   }, []);
 
+  async function removeProducts(id: string[]) {
+    setLoading(true);
+    setError(null);
+    try {
+      await deleteProducts(id);
+      await fetchProducts();
+    } catch (err: any) {
+      console.error("Failed to remove product(s) ", err);
+      setError(err.message || "Something went wrong");
+    } finally {
+      setLoading(false);
+    }
+  }
+
   async function createProduct(product: ProductSchema) {
     setLoading(true);
     setError(null);
@@ -37,6 +57,20 @@ export function useProducts() {
     }
   }
 
+  async function editProduct(id: string, product: ProductSchema) {
+    setLoading(true);
+    setError(null);
+    try {
+      await updateProduct(id, product);
+      await fetchProducts();
+    } catch (err: any) {
+      console.error("Failed to update product: ", err);
+      setError(err.message || "Something went wrong");
+    } finally {
+      setLoading(false);
+    }
+  }
+
   useEffect(() => {
     fetchProducts();
   }, [fetchProducts]);
@@ -45,6 +79,8 @@ export function useProducts() {
     products,
     refetch: fetchProducts,
     createProduct,
+    editProduct,
+    removeProducts,
     loading,
     initialLoading,
     error,
