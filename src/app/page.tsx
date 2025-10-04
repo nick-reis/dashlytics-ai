@@ -13,7 +13,7 @@ import {
 } from "@/components/ui/form";
 import { DashboardHeader } from "@/components/dashboard-header";
 import { useAnalyzeQuery } from "@/hooks/useAnalyzeQuery";
-import { Loader2 } from "lucide-react";
+import LoadIcon from "@/components/ui/load-icon";
 
 export const inputSchema = z.object({
   formInput: z
@@ -71,11 +71,7 @@ export default function Home() {
                   variant={"outline"}
                   type="submit"
                 >
-                  {loading ? (
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin"></Loader2>
-                  ) : (
-                    "Submit"
-                  )}
+                  {loading ? <LoadIcon /> : "Submit"}
                 </Button>
               </form>
             </Form>

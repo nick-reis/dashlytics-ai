@@ -16,7 +16,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import React from "react";
-import { Loader2 } from "lucide-react";
+import LoadIcon from "../ui/load-icon";
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
@@ -70,7 +70,7 @@ export function DataTable<TData, TValue>({
                   colSpan={columns.length}
                   className="h-24 text-center"
                 >
-                  <Loader2 className="mx-auto h-6 w-6 animate-spin" />
+                  <LoadIcon />
                 </TableCell>
               </TableRow>
             ) : table.getRowModel().rows?.length ? (

@@ -17,8 +17,8 @@ import {
 import { Input } from "@/components/ui/input";
 import { Textarea } from "./ui/textarea";
 import { NumberInput } from "./ui/number-input";
-import { Loader2 } from "lucide-react";
 import { DialogClose } from "@radix-ui/react-dialog";
+import LoadIcon from "./ui/load-icon";
 
 type ProductFormProps = {
   onSubmit: (values: ProductSchema) => Promise<void> | void;
@@ -141,11 +141,7 @@ export const EditProduct: React.FC<ProductFormProps> = ({
             </DialogClose>
           )}
           <Button disabled={loading} className="" type="submit">
-            {loading ? (
-              <Loader2 className="mr-2 h-4 w-4 animate-spin"></Loader2>
-            ) : (
-              "Save"
-            )}
+            {loading ? <LoadIcon /> : "Save"}
           </Button>
         </div>
       </form>
