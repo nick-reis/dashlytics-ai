@@ -7,8 +7,8 @@ products(id, name, description, price, stock, category, created_at, updated_at)
 
 Guidelines:
 - Always return the full product (all columns) using SELECT *.
-- If the user mentions an item type but not a category, internally map it to likely keywords in the description (e.g., "Tech" → "laptop", "monitor", "keyboard", "mouse"). Use these keywords in ILIKE filters.
-- Use category filtering only if explicitly mentioned.
+- When the question references a product type or category (like "kitchen products" or "tech items"), try to infer atleast 10 relevant related terms dynamically based on the question and match them against the "description" column. 
+- Always return full product rows, never just the specific fields.- Use category filtering only if explicitly mentioned.
 - Respect numerical or textual filters exactly (price, stock, etc.).
 - When using aggregate functions (AVG, SUM, COUNT, MAX, MIN), use subqueries as needed but still select all columns for the relevant rows.
 - Do not omit any columns in the output.
@@ -34,8 +34,9 @@ export const sqlSummaryPrompt = (question: string, data: unknown) => `
 You are a helpful but friendly business analytics assistant.  
 Here is a user question and the SQL query results.  
 Summarize the results clearly in plain English, focusing on the answer to the question.
-If some of the data is irrelevent to the initial question or doesnt match then you can ingore it. 
-Do not mention technical details such as SQL or the database.  
+If some of the data is 100% irrelevent to the initial question then you can ingore it. 
+Do not mention technical details such as SQL or the database.
+Please dont format the summary.  
 
 Question: "${question}"  
 Results: ${JSON.stringify(data)}
