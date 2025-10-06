@@ -76,6 +76,7 @@ export const EditProduct: React.FC<ProductFormProps> = ({
               <FormLabel>Description</FormLabel>
               <FormControl>
                 <Textarea
+                  className="resize-none"
                   placeholder="Product Description"
                   {...field}
                 ></Textarea>
