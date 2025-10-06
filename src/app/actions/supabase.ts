@@ -13,6 +13,16 @@ export async function getProducts() {
   return data as Product[];
 }
 
+export async function getProduct(id: string) {
+  const { data, error } = await supabase
+    .from("products")
+    .select()
+    .eq("id", id)
+    .single();
+
+  return data as Product;
+}
+
 export async function addProduct(product: ProductSchema) {
   const { data, error } = await supabase
     .from("products")

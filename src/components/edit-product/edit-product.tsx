@@ -15,10 +15,10 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Textarea } from "./ui/textarea";
-import { NumberInput } from "./ui/number-input";
+import { Textarea } from "../ui/textarea";
+import { NumberInput } from "../ui/number-input";
 import { DialogClose } from "@radix-ui/react-dialog";
-import LoadIcon from "./ui/load-icon";
+import LoadIcon from "../ui/load-icon";
 
 type ProductFormProps = {
   onSubmit: (values: ProductSchema) => Promise<void> | void;
@@ -132,7 +132,7 @@ export const EditProduct: React.FC<ProductFormProps> = ({
             </FormItem>
           )}
         />
-        <div className="w-full flex justify-end items-center">
+        <div className="w-full flex gap-2 justify-end items-center">
           {useDialog && (
             <DialogClose asChild>
               <Button type="button" variant="outline">

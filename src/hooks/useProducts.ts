@@ -6,12 +6,13 @@ import {
   addProduct,
   deleteProducts,
   updateProduct,
+  getProduct,
 } from "@/app/actions";
 import { ProductSchema } from "@/schemas";
-import { set } from "zod";
+import { Product } from "@/types";
 
-export function useProducts() {
-  const [products, setProducts] = useState<any[]>([]);
+export function useProducts(id?: string) {
+  const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(false);
   const [initialLoading, setInitialLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -19,8 +20,13 @@ export function useProducts() {
   const fetchProducts = useCallback(async () => {
     setError(null);
     try {
-      const data = await getProducts();
-      setProducts(data || []);
+      if (id) {
+        const data = await getProduct(id);
+        setProducts([data]);
+      } else {
+        const data = await getProducts();
+        setProducts(data || []);
+      }
     } catch (err: any) {
       console.error("Failed to fetch products: ", err);
       setError(err.message ?? "Something went wrong");
