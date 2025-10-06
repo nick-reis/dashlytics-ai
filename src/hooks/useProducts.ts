@@ -17,23 +17,27 @@ export function useProducts(id?: string) {
   const [initialLoading, setInitialLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const fetchProducts = useCallback(async () => {
-    setError(null);
-    try {
-      if (id) {
-        const data = await getProduct(id);
-        setProducts([data]);
-      } else {
-        const data = await getProducts();
-        setProducts(data || []);
+  const fetchProducts = useCallback(
+    async (options?: { showInitialLoading?: boolean }) => {
+      setError(null);
+      if (options?.showInitialLoading) setInitialLoading(true);
+      try {
+        if (id) {
+          const data = await getProduct(id);
+          setProducts([data]);
+        } else {
+          const data = await getProducts();
+          setProducts(data || []);
+        }
+      } catch (err: any) {
+        console.error("Failed to fetch products: ", err);
+        setError(err.message ?? "Something went wrong");
+      } finally {
+        setInitialLoading(false);
       }
-    } catch (err: any) {
-      console.error("Failed to fetch products: ", err);
-      setError(err.message ?? "Something went wrong");
-    } finally {
-      setInitialLoading(false);
-    }
-  }, []);
+    },
+    []
+  );
 
   async function removeProducts(id: string[]) {
     setLoading(true);
@@ -77,13 +81,18 @@ export function useProducts(id?: string) {
     }
   }
 
+  const refetch = useCallback(
+    () => fetchProducts({ showInitialLoading: true }),
+    [fetchProducts]
+  );
+
   useEffect(() => {
     fetchProducts();
   }, [fetchProducts]);
 
   return {
     products,
-    refetch: fetchProducts,
+    refetch,
     createProduct,
     editProduct,
     removeProducts,
