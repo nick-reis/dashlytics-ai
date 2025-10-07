@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { DataTable, productColumns } from "@/components/data-table";
 import { DashboardHeader } from "@/components/dashboard-header";
 import { EditProductDialog } from "@/components/edit-product/edit-product-dialog";
@@ -15,10 +15,9 @@ import {
   DialogClose,
   DialogDescription,
 } from "@/components/ui/dialog";
-import { Label } from "@radix-ui/react-dropdown-menu";
-import { EditProduct } from "@/components/edit-product/edit-product";
 import LoadIcon from "@/components/ui/load-icon";
-import { Delete } from "lucide-react";
+import { Plus, RefreshCcw, Trash } from "lucide-react";
+import { RowSelectionState } from "@tanstack/react-table";
 
 export default function Products() {
   const {
@@ -27,22 +26,70 @@ export default function Products() {
     loading,
     removeProducts,
     editProduct,
+    refetch,
     createProduct,
   } = useProducts();
   const [activeEditRow, setActiveEditRow] = useState<Product | null>(null);
-  const [activeDeleteRow, setActiveDeleteRow] = useState<Product | null>(null);
+
+  const [activeAddRow, setActiveAddRow] = useState<boolean>(false);
+
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState<boolean>(false);
+
+  const [selectedProducts, setSelectedProducts] = useState<string[]>([]);
 
   const columns = productColumns({
-    onDeleteRowClick: (product) => setActiveDeleteRow(product),
+    onDeleteRowClick: (product) => {
+      selectedProducts.push(product.id);
+      setDeleteDialogOpen(true);
+    },
   });
+
+  useEffect(() => {
+    console.log(selectedProducts);
+  }, [selectedProducts]);
 
   return (
     <div className="w-full h-full">
-      <DashboardHeader title="Products" />
+      <DashboardHeader
+        title="Products"
+        actions={
+          <div className="w-full flex flex-row gap-2 justify-end">
+            {selectedProducts.length > 0 && deleteDialogOpen == false && (
+              <Button
+                onClick={() => setDeleteDialogOpen(true)}
+                variant={"destructive"}
+              >
+                <Trash />
+                Delete {selectedProducts.length} product(s)
+              </Button>
+            )}
+            <Button onClick={() => setActiveAddRow(true)} variant={"outline"}>
+              <Plus />
+              Add Product
+            </Button>
+
+            <Button
+              disabled={loading || initialLoading}
+              onClick={refetch}
+              variant={"outline"}
+            >
+              {loading || initialLoading ? (
+                <RefreshCcw className=" animate-spin" />
+              ) : (
+                <RefreshCcw />
+              )}
+              Refresh
+            </Button>
+          </div>
+        }
+      />
+
       <div className="flex flex-1">
         <div className="w-full h-screen overflow-y-auto">
           <DataTable
             data={products}
+            selectedIds={selectedProducts}
+            onSelectionChange={setSelectedProducts}
             loading={initialLoading}
             columns={columns}
             onClickRow={setActiveEditRow} // opens edit dialog
@@ -59,13 +106,21 @@ export default function Products() {
         />
       )}
 
+      {/* Add Product Dialog */}
+      {activeAddRow && (
+        <EditProductDialog
+          onAdd={createProduct}
+          close={() => setActiveAddRow(false)}
+        ></EditProductDialog>
+      )}
+
       {/* Delete Product Dialog */}
-      {activeDeleteRow && (
+      {deleteDialogOpen && (
         <Dialog
           open
-          onOpenChange={(open) => {
-            // Prevent closing while deleting
-            if (!loading) setActiveDeleteRow(open ? activeDeleteRow : null);
+          onOpenChange={() => {
+            setSelectedProducts([]);
+            setDeleteDialogOpen(false);
           }}
         >
           <DialogContent>
@@ -73,29 +128,38 @@ export default function Products() {
               <DialogTitle>Are you sure?</DialogTitle>
               <DialogDescription>
                 This action cannot be undone. Are you sure you want to
-                permanently delete <strong>{activeDeleteRow.name}</strong>?
+                permanently delete{" "}
+                <strong>
+                  {selectedProducts.length === 1
+                    ? products.find((p) => p.id === selectedProducts[0])?.name
+                    : `${selectedProducts.length} products`}
+                </strong>
+                ?
               </DialogDescription>
             </DialogHeader>
 
             <DialogFooter className="flex gap-2">
-              {/* Cancel Button */}
               <Button
+                onClick={() => {
+                  setSelectedProducts([]);
+                  setDeleteDialogOpen(false);
+                }}
                 variant="outline"
-                disabled={loading} // prevent cancel while deleting
-                onClick={() => !loading && setActiveDeleteRow(null)}
+                disabled={loading}
               >
                 Cancel
               </Button>
 
-              {/* Delete Button */}
               <Button
                 variant="destructive"
                 disabled={loading}
                 onClick={async () => {
-                  // Call removeProducts and wait for hook to finish
-                  await removeProducts([activeDeleteRow.id]);
-                  // Only close once loading becomes false
-                  if (!loading) setActiveDeleteRow(null);
+                  await removeProducts(selectedProducts);
+
+                  if (!loading) {
+                    setSelectedProducts([]); // clear selection after deletion
+                    setDeleteDialogOpen(false);
+                  }
                 }}
               >
                 {loading ? <LoadIcon /> : "Delete"}

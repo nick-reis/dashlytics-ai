@@ -1,29 +1,36 @@
 "use client";
+
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
-  DialogFooter,
-  DialogClose,
-  DialogOverlay,
 } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
 import { EditProduct } from "./edit-product";
 import { Product } from "@/types";
 import { ProductSchema } from "@/schemas";
 
+interface ProductDialogProps {
+  product?: Product | null; // optional -> if undefined, adding new product
+  onEdit?: (id: string, values: ProductSchema) => Promise<void>;
+  onAdd?: (values: ProductSchema) => Promise<void>;
+  close: () => void;
+}
+
 export const EditProductDialog = ({
   product,
   onEdit,
+  onAdd,
   close,
-}: {
-  product: Product;
-  onEdit: (id: string, values: ProductSchema) => void;
-  close: () => void;
-}) => {
+}: ProductDialogProps) => {
+  const isEditing = !!product;
+
   const handleSubmit = async (values: ProductSchema) => {
-    await onEdit(product.id, values);
+    if (isEditing && onEdit && product) {
+      await onEdit(product.id, values);
+    } else if (onAdd) {
+      await onAdd(values);
+    }
     close();
   };
 
@@ -31,12 +38,14 @@ export const EditProductDialog = ({
     <Dialog open={true} onOpenChange={close}>
       <DialogContent className="sm:max-w-[500px] bg-white">
         <DialogHeader>
-          <DialogTitle>Edit Product</DialogTitle>
+          <DialogTitle>
+            {isEditing ? "Edit Product" : "Add Product"}
+          </DialogTitle>
         </DialogHeader>
 
         <EditProduct
           useDialog
-          initialValues={product}
+          initialValues={product || ({} as Partial<ProductSchema>)}
           onSubmit={handleSubmit}
         />
       </DialogContent>

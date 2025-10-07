@@ -5,6 +5,7 @@ import {
   flexRender,
   getCoreRowModel,
   useReactTable,
+  RowSelectionState,
 } from "@tanstack/react-table";
 import {
   Table,
@@ -21,18 +22,35 @@ interface DataTableProps<TData, TValue> {
   data: TData[];
   loading: boolean;
   onClickRow?: (row: TData) => void;
+  selectedIds: string[]; // IDs of selected rows
+  onSelectionChange: (selectedIds: string[]) => void; // callback for parent
 }
 
-export function DataTable<TData, TValue>({
+export function DataTable<TData extends { id: string }, TValue>({
   columns,
   data,
   loading,
   onClickRow,
+  selectedIds,
+  onSelectionChange,
 }: DataTableProps<TData, TValue>) {
   const table = useReactTable({
     data,
     columns,
     getCoreRowModel: getCoreRowModel(),
+    getRowId: (row) => row.id, // use row.id as the unique key
+    state: {
+      rowSelection: Object.fromEntries(selectedIds.map((id) => [id, true])),
+    },
+    onRowSelectionChange: (updaterOrValue) => {
+      const newSelection: RowSelectionState =
+        typeof updaterOrValue === "function"
+          ? updaterOrValue(table.getState().rowSelection)
+          : updaterOrValue;
+
+      // Convert to array of selected IDs for parent
+      onSelectionChange(Object.keys(newSelection));
+    },
   });
 
   return (
@@ -66,11 +84,15 @@ export function DataTable<TData, TValue>({
                   <LoadIcon />
                 </TableCell>
               </TableRow>
-            ) : (
+            ) : table.getRowModel().rows.length > 0 ? (
               table.getRowModel().rows.map((row) => (
                 <TableRow
                   key={row.id}
-                  className="cursor-pointer"
+                  className={`cursor-pointer ${
+                    selectedIds.includes(row.original.id)
+                      ? "bg-muted"
+                      : "hover:bg-muted/50"
+                  }`}
                   onClick={() => onClickRow?.(row.original)}
                 >
                   {row.getVisibleCells().map((cell) => (
@@ -83,6 +105,15 @@ export function DataTable<TData, TValue>({
                   ))}
                 </TableRow>
               ))
+            ) : (
+              <TableRow>
+                <TableCell
+                  colSpan={columns.length}
+                  className="h-24 text-center"
+                >
+                  No results.
+                </TableCell>
+              </TableRow>
             )}
           </TableBody>
         </Table>
