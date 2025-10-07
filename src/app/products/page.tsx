@@ -57,7 +57,7 @@ export default function Products() {
             {selectedProducts.length > 0 && deleteDialogOpen == false && (
               <Button
                 onClick={() => setDeleteDialogOpen(true)}
-                variant={"destructive"}
+                variant={"secondary"}
               >
                 <Trash />
                 Delete {selectedProducts.length} product(s)

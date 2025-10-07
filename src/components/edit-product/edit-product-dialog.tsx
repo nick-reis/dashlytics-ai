@@ -36,7 +36,7 @@ export const EditProductDialog = ({
 
   return (
     <Dialog open={true} onOpenChange={close}>
-      <DialogContent className="sm:max-w-[500px] bg-white">
+      <DialogContent className="sm:max-w-[500px]">
         <DialogHeader>
           <DialogTitle>
             {isEditing ? "Edit Product" : "Add Product"}

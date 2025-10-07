@@ -23,6 +23,7 @@ import {
 import { Button } from "./ui/button";
 import { useTheme } from "next-themes";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 
 const items = [
   {
@@ -32,12 +33,12 @@ const items = [
   },
   {
     title: "Customers",
-    url: "/",
+    url: "/customers",
     icon: User,
   },
   {
     title: "Orders",
-    url: "/",
+    url: "/orders",
     icon: LibraryBig,
   },
 ];
@@ -46,6 +47,7 @@ export function AppSidebar() {
   const { setTheme } = useTheme();
 
   const [darkTheme, setDarkTheme] = React.useState(true);
+  const pathname = usePathname();
   return (
     <Sidebar>
       <SidebarHeader />
@@ -53,7 +55,7 @@ export function AppSidebar() {
         <SidebarGroup>
           <SidebarMenu>
             <SidebarMenuItem>
-              <SidebarMenuButton asChild>
+              <SidebarMenuButton isActive={pathname == "/"} asChild>
                 <Link href="/">
                   <LayoutDashboard />
                   <span>Dashboard</span>
@@ -66,16 +68,19 @@ export function AppSidebar() {
           <SidebarGroupLabel>Manage</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
-              {items.map((item) => (
-                <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton asChild>
-                    <Link href={item.url || "/"}>
-                      <item.icon />
-                      <span>{item.title}</span>
-                    </Link>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
+              {items.map((item) => {
+                const isActive = pathname === item.url;
+                return (
+                  <SidebarMenuItem key={item.title}>
+                    <SidebarMenuButton isActive={isActive} asChild>
+                      <Link href={item.url || "/"}>
+                        <item.icon />
+                        <span>{item.title}</span>
+                      </Link>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                );
+              })}
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
