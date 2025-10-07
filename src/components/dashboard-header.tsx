@@ -24,7 +24,7 @@ export function DashboardHeader({ title, actions }: DashboardHeaderProps) {
             <div>
               <Github />
               <a
-                href="https://github.com/nick-reis"
+                href="https://github.com/nick-reis/dashlytics-ai"
                 rel="noopener noreferrer"
                 target="_blank"
                 className="dark:text-foreground"
