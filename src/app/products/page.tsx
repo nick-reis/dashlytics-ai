@@ -16,8 +16,10 @@ import {
   DialogDescription,
 } from "@/components/ui/dialog";
 import LoadIcon from "@/components/ui/load-icon";
-import { Plus, RefreshCcw, Trash } from "lucide-react";
-import { RowSelectionState } from "@tanstack/react-table";
+import { MessageCircle, Plus, RefreshCcw, Trash } from "lucide-react";
+import { Popover, PopoverTrigger } from "@/components/ui/popover";
+import { PopoverContent } from "@radix-ui/react-popover";
+import Chat from "@/components/chat";
 
 export default function Products() {
   const {

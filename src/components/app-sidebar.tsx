@@ -11,6 +11,7 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
+  SidebarRail,
 } from "./ui/sidebar";
 import {
   LayoutDashboard,
@@ -24,6 +25,8 @@ import { Button } from "./ui/button";
 import { useTheme } from "next-themes";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import Chat from "./chat";
+import { Separator } from "./ui/separator";
 
 const items = [
   {
@@ -44,14 +47,11 @@ const items = [
 ];
 
 export function AppSidebar() {
-  const { setTheme } = useTheme();
-
-  const [darkTheme, setDarkTheme] = React.useState(true);
   const pathname = usePathname();
   return (
-    <Sidebar>
+    <Sidebar className="flex flex-col">
       <SidebarHeader />
-      <SidebarContent>
+      <SidebarContent className="flex-1">
         <SidebarGroup>
           <SidebarMenu>
             <SidebarMenuItem>
@@ -84,24 +84,14 @@ export function AppSidebar() {
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
+        <div className="p-4 flex-1 mt-auto h-full overflow-hidden">
+          <div className=" h-full bg-background rounded-lg border w-full overflow-hidden">
+            <Chat />
+          </div>
+        </div>
       </SidebarContent>
-      <SidebarFooter>
-        <SidebarMenu>
-          <SidebarMenuItem>
-            <Button
-              variant={"outline"}
-              onClick={() => {
-                setTheme(darkTheme ? "light" : "dark");
-                setDarkTheme(!darkTheme);
-              }}
-              className="w-full justify-start"
-            >
-              {darkTheme ? <Sun /> : <Moon />}
-              <span>Switch Theme</span>
-            </Button>
-          </SidebarMenuItem>
-        </SidebarMenu>
-      </SidebarFooter>
+
+      <SidebarRail></SidebarRail>
     </Sidebar>
   );
 }

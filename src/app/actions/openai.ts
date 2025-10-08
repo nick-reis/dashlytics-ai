@@ -3,12 +3,28 @@
 import { openai } from "@/lib/openai";
 import { queryDatabase } from "@/app/actions/supabase";
 import { sqlGeneratorPrompt, sqlSummaryPrompt } from "@/lib/prompts";
+import { ModelMessage } from "ai";
 
 //  Generate relevant SQL from question
-export async function generateSQL(question: string): Promise<string> {
+export async function generateSQL(
+  question: string,
+  messages: { role: string; content: string }[]
+): Promise<string> {
+  const context = messages
+    .map((m) => `${m.role.toUpperCase()}: ${m.content}`)
+    .join("\n");
   const completion = await openai.chat.completions.create({
     model: process.env.OPEN_AI_MODEL!,
-    messages: [{ role: "user", content: sqlGeneratorPrompt(question) }],
+    messages: [
+      {
+        role: "user",
+        content: `
+Conversation so far:
+${context}
+${sqlGeneratorPrompt(question)}
+`,
+      },
+    ],
   });
 
   let sqlQuery = completion.choices[0]?.message?.content?.trim();
@@ -31,24 +47,4 @@ export async function generateSQL(question: string): Promise<string> {
 export async function getQueryData(sqlQuery: string) {
   const data = await queryDatabase(sqlQuery);
   return data;
-}
-
-// Summarize results using OpenAI
-export async function summarizeData(question: string, data: any) {
-  const completion = await openai.chat.completions.create({
-    model: "gpt-4o-mini",
-    messages: [{ role: "user", content: sqlSummaryPrompt(question, data) }],
-  });
-
-  return completion.choices[0]?.message?.content?.trim() ?? null;
-}
-
-export async function analyzeQuery(question: string) {
-  const sqlQuery = await generateSQL(question);
-  console.log(sqlQuery);
-  const data = await getQueryData(sqlQuery);
-  console.log(data);
-  const summary = await summarizeData(question, data);
-
-  return { sqlQuery, data, summary };
 }

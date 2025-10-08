@@ -14,6 +14,7 @@ import {
 import { DashboardHeader } from "@/components/dashboard-header";
 import { useAnalyzeQuery } from "@/hooks/useAnalyzeQuery";
 import LoadIcon from "@/components/ui/load-icon";
+import Chat from "@/components/chat";
 
 export const inputSchema = z.object({
   formInput: z
@@ -25,68 +26,15 @@ export const inputSchema = z.object({
 type InputSchema = z.infer<typeof inputSchema>;
 
 export default function Home() {
-  const { loading, error, runQuery, summary } = useAnalyzeQuery();
-
   const form = useForm<InputSchema>({
     resolver: zodResolver(inputSchema),
   });
-
-  const onSubmit = async (values: InputSchema) => {
-    runQuery(JSON.stringify(values));
-  };
 
   return (
     <div className="w-full h-full">
       <DashboardHeader title="Dashboard" />
 
-      <div className="flex flex-1">
-        <div className="w-3/4  "></div>
-
-        <div className="w-1/2 bg-sidebar border-l border-sidebar-border h-screen flex flex-col overflow-auto items-center justify-center">
-          <div className="w-full p-4">
-            <Form {...form}>
-              <form
-                onSubmit={form.handleSubmit(onSubmit)}
-                className="space-y-4"
-              >
-                <FormField
-                  control={form.control}
-                  name="formInput"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormControl>
-                        <Textarea
-                          className=""
-                          placeholder="Ask anything"
-                          {...field}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <Button
-                  disabled={loading}
-                  className=""
-                  variant={"outline"}
-                  type="submit"
-                >
-                  {loading ? <LoadIcon /> : "Submit"}
-                </Button>
-              </form>
-            </Form>
-
-            {error && (
-              <p className="text-sm p-4 my-4 border rounded-lg text-destructive">
-                {error}
-              </p>
-            )}
-            {summary && (
-              <p className="text-sm p-4 my-4 border rounded-lg">{summary}</p>
-            )}
-          </div>
-        </div>
-      </div>
+      <div className="flex h-full flex-1"></div>
     </div>
   );
 }

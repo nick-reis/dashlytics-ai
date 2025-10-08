@@ -20,6 +20,7 @@ export async function getProduct(id: string) {
     .eq("id", id)
     .single();
 
+  if (error) throw new Error(error.message);
   return data as Product;
 }
 

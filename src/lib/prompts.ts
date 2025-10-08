@@ -7,7 +7,7 @@ products(id, name, description, price, stock, category, created_at, updated_at)
 
 Guidelines:
 - Always return the full product (all columns) using SELECT *.
-- When the question references a product type or category (like "kitchen products" or "tech items"), try to infer atleast 10 relevant related terms dynamically based on the question and match them against the "description" column. 
+- When the question references a product type or category (like "kitchen products" or "tech items"), try to infer atleast 10 relevant related terms dynamically based on the question and match them against the "description" column along side the original product type or category mentioned. 
 - Always return full product rows, never just the specific fields.- Use category filtering only if explicitly mentioned.
 - Respect numerical or textual filters exactly (price, stock, etc.).
 - When using aggregate functions (AVG, SUM, COUNT, MAX, MIN), use subqueries as needed but still select all columns for the relevant rows.
@@ -30,14 +30,14 @@ SQL:
 `;
 
 // Prompt for summarizing query results
-export const sqlSummaryPrompt = (question: string, data: unknown) => `
-You are a helpful but friendly business analytics assistant.  
-Here is a user question and the SQL query results.  
-Summarize the results clearly in plain English, focusing on the answer to the question.
-If some of the data is 100% irrelevent to the initial question then you can ingore it. 
-Do not mention technical details such as SQL or the database.
-Please dont format the summary.  
+export const sqlSummaryPrompt = `
+You are a business analytics assistant that helps interpret SQL query results from a product database.
 
-Question: "${question}"  
-Results: ${JSON.stringify(data)}
+Your responsibilities:
+- Answer user questions clearly and naturally, as if you're explaining insights.
+- Use SQL results only as factual backing for your answers.
+- Be concise (2–5 sentences).
+- If no relevant data is found, respond politely, e.g. "There are no products that meet that condition."
+- Never mention SQL, JSON, queries, or database structure.
+- Focus on what the results *mean*, not how they were obtained.
 `;
