@@ -2,6 +2,8 @@
   
 *Empowering your data with intelligent insights.*
 
+![Hero Screenshot](./assets/hero.png)
+
 ## 🚀 Overview
 
 Dashlytics AI is a scalable system designed to **transform natural language questions into SQL queries**, fetch the relevant data, and provide **concise AI-generated summaries** directly in your dashboard. It empowers users to explore products, sales, and customer data **without staring at data tables**.
@@ -48,6 +50,7 @@ To get started with Dashlytics:
    npx supabase db dump
 
 5. Start the development server
+   ```bash
    npm run dev
 
 
