@@ -85,7 +85,7 @@ export function AppSidebar() {
           </SidebarGroupContent>
         </SidebarGroup>
         <div className="p-4 flex-1 mt-auto h-full overflow-hidden">
-          <div className=" h-full bg-background rounded-lg border w-full overflow-hidden">
+          <div className=" h-full bg-background rounded-lg border w-full overflow-scroll">
             <Chat />
           </div>
         </div>

@@ -12,16 +12,15 @@ import {
   DialogHeader,
   DialogTitle,
   DialogFooter,
-  DialogClose,
   DialogDescription,
 } from "@/components/ui/dialog";
 import LoadIcon from "@/components/ui/load-icon";
-import { MessageCircle, Plus, RefreshCcw, Trash } from "lucide-react";
-import { Popover, PopoverTrigger } from "@/components/ui/popover";
-import { PopoverContent } from "@radix-ui/react-popover";
-import Chat from "@/components/chat";
+import { Plus, RefreshCcw, Trash } from "lucide-react";
+import { useRouter, useSearchParams } from "next/navigation";
 
 export default function Products() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
   const {
     products,
     initialLoading,
@@ -31,7 +30,6 @@ export default function Products() {
     refetch,
     createProduct,
   } = useProducts();
-  const [activeEditRow, setActiveEditRow] = useState<Product | null>(null);
 
   const [activeAddRow, setActiveAddRow] = useState<boolean>(false);
 
@@ -39,12 +37,24 @@ export default function Products() {
 
   const [selectedProducts, setSelectedProducts] = useState<string[]>([]);
 
+  const editId = searchParams.get("edit");
+
   const columns = productColumns({
     onDeleteRowClick: (product) => {
       selectedProducts.push(product.id);
       setDeleteDialogOpen(true);
     },
   });
+
+  // Helper to open edit dialog by updating the URL
+  const openEditDialog = (id: string) => {
+    router.push(`/products?edit=${id}`);
+  };
+
+  // Close the edit dialog by removing the query param
+  const closeEditDialog = () => {
+    router.push("/products");
+  };
 
   useEffect(() => {
     console.log(selectedProducts);
@@ -94,17 +104,17 @@ export default function Products() {
             onSelectionChange={setSelectedProducts}
             loading={initialLoading}
             columns={columns}
-            onClickRow={setActiveEditRow} // opens edit dialog
+            onClickRow={(row: Product) => openEditDialog(row.id)} // opens edit dialog
           />
         </div>
       </div>
 
       {/* Edit Product Dialog */}
-      {activeEditRow && (
+      {editId && !initialLoading && (
         <EditProductDialog
-          product={activeEditRow}
+          product={products.find((p) => p.id === editId)!}
           onEdit={editProduct}
-          close={() => setActiveEditRow(null)}
+          close={closeEditDialog}
         />
       )}
 

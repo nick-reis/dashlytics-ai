@@ -10,6 +10,7 @@ import remarkMath from "remark-math";
 import { CodeBlock, CodeBlockCopyButton } from "./code-block";
 import "katex/dist/katex.min.css";
 import hardenReactMarkdown from "harden-react-markdown";
+import { useRouter } from "next/navigation";
 
 /**
  * Parses markdown text and removes incomplete tokens to prevent partial rendering
@@ -197,16 +198,29 @@ const components: Options["components"] = {
       {children}
     </span>
   ),
-  a: ({ node, children, className, ...props }) => (
-    <a
-      className={cn("font-medium text-primary underline", className)}
-      rel="noreferrer"
-      target="_blank"
-      {...props}
-    >
-      {children}
-    </a>
-  ),
+  a: ({ node, children, className, href, ...props }) => {
+    const router = useRouter();
+
+    const handleClick = (e: React.MouseEvent) => {
+      if (href && href.startsWith("/")) {
+        e.preventDefault();
+        router.push(href);
+      }
+    };
+
+    return (
+      <a
+        href={href}
+        onClick={handleClick}
+        className={cn("font-semibold text-primary cursor-pointer", className)}
+        rel={href?.startsWith("/") ? undefined : "noreferrer"}
+        target={href?.startsWith("/") ? undefined : "_blank"}
+        {...props}
+      >
+        {children}
+      </a>
+    );
+  },
   h1: ({ node, children, className, ...props }) => (
     <h1
       className={cn("mt-6 mb-2 font-semibold text-3xl", className)}
@@ -373,9 +387,9 @@ export const Response = memo(
       >
         <HardenedMarkdown
           allowedImagePrefixes={allowedImagePrefixes ?? ["*"]}
-          allowedLinkPrefixes={allowedLinkPrefixes ?? ["*"]}
+          allowedLinkPrefixes={allowedLinkPrefixes ?? ["*", "?"]}
           components={components}
-          defaultOrigin={defaultOrigin}
+          defaultOrigin={defaultOrigin ?? "http://localhost:3000"}
           rehypePlugins={[rehypeKatex]}
           remarkPlugins={[remarkGfm, remarkMath]}
           {...options}

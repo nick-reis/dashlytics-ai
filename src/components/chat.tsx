@@ -53,10 +53,10 @@ export default function Chat() {
               className="text-primary truncate"
               variant="outline"
               onClick={() =>
-                sendMessage({ text: "Who is the most repeat customer?" })
+                sendMessage({ text: "What is the most expensive Product?" })
               }
             >
-              "Who is the most repeat customer?"
+              "What is the most expensive Product?"
             </Button>
             <Button
               className="text-primary truncate"

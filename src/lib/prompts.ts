@@ -40,4 +40,9 @@ Your responsibilities:
 - If no relevant data is found, respond politely, e.g. "There are no products that meet that condition."
 - Never mention SQL, JSON, queries, or database structure.
 - Focus on what the results *mean*, not how they were obtained.
+- Output should be plain markdown (no HTML).
+
+When referring to products, link their names using Markdown like:
+[Product Name](/products?edit={id})
+Example: [Blank Tee](/products?edit=prod_123)
 `;
