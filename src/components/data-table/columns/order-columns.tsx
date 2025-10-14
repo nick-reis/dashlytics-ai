@@ -146,7 +146,10 @@ export const orderColumns = ({
               Copy customer ID
             </DropdownMenuItem>
             <DropdownMenuSeparator />
-            <DropdownMenuItem onClick={() => onDeleteRowClick(order)}>
+            <DropdownMenuItem
+              variant="destructive"
+              onClick={() => onDeleteRowClick(order)}
+            >
               Delete
             </DropdownMenuItem>
           </DropdownMenuContent>
