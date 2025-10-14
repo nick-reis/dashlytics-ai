@@ -13,7 +13,7 @@ import {
 } from "@/schemas/order";
 
 // Return/row types
-import { Product, Customer, Order } from "@/types";
+import { Product, Customer, Order, OrderEnriched } from "@/types";
 
 /* =========================
  * PRODUCTS
@@ -169,17 +169,59 @@ export async function deleteOrders(ids: string[]) {
     .select();
   if (error) throw new Error(error.message);
   return data as Order[];
+
+
 }
+
+
+// Get all orders with customer + product names (single SELECT via RPC)
+export async function getOrdersEnriched() {
+  const sql = `SELECT
+      o.*,
+      c.full_name AS customer_name,
+      (
+        SELECT array_agg(p.name ORDER BY p.name)
+        FROM products p
+        WHERE p.id = ANY (o.product_ids)
+      ) AS product_names
+    FROM orders o
+    LEFT JOIN customers c ON c.id = o.customer_id
+    ORDER BY o.updated_at DESC`;
+  const data = await queryDatabase(sql);
+  return data as OrderEnriched[];
+}
+
+// Get single order with names
+export async function getOrderEnriched(id: string) {
+  const sql = `SELECT
+      o.*,
+      c.full_name AS customer_name,
+      (
+        SELECT array_agg(p.name ORDER BY p.name)
+        FROM products p
+        WHERE p.id = ANY (o.product_ids)
+      ) AS product_names
+    FROM orders o
+    LEFT JOIN customers c ON c.id = o.customer_id
+    WHERE o.id = '${id.replace(/'/g, "''")}'`;
+  const rows = (await queryDatabase(sql)) as OrderEnriched[];
+  if (!rows?.length) throw new Error("Order not found");
+  return rows[0];
+}
+
+
 
 /* =========================
  * SAFE SELECT RPC
  * ========================= */
 
 export async function queryDatabase(sqlQuery: string) {
-  if (!sqlQuery.trim().toLowerCase().startsWith("select")) {
+  const cleaned = sqlQuery.trim().replace(/;+\s*$/,"");
+  if (!cleaned.toLowerCase().startsWith("select")) {
     throw new Error("Only SELECT queries are allowed.");
   }
-  const { data, error } = await supabase.rpc("execute_sql", { query: sqlQuery });
+  const { data, error } = await supabase.rpc("execute_sql", { query: cleaned });
   if (error) throw new Error(error.message);
   return data;
 }
+

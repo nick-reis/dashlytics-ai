@@ -7,3 +7,8 @@ export type Order = {
   created_at: string;
   updated_at: string;
 };
+
+export type OrderEnriched = Order & {
+  customer_name: string | null;
+  product_names: string[] | null;
+};

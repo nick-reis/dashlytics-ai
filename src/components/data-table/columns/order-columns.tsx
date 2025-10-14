@@ -1,7 +1,7 @@
 "use client";
 
 import { ColumnDef } from "@tanstack/react-table";
-import { Order } from "@/types";
+import { type OrderEnriched } from "@/types";
 import { MoreHorizontal } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -15,10 +15,10 @@ import {
 } from "@/components/ui/dropdown-menu";
 
 interface OrderColumnOptions {
-  onDeleteRowClick: (order: Order) => void;
+  onDeleteRowClick: (order: OrderEnriched) => void;
 }
 
-const statusColor: Record<Order["status"], string> = {
+const statusColor: Record<OrderEnriched["status"], string> = {
   open: "bg-blue-500",
   paid: "bg-green-500",
   fulfilled: "bg-purple-500",
@@ -27,7 +27,7 @@ const statusColor: Record<Order["status"], string> = {
 
 export const orderColumns = ({
   onDeleteRowClick,
-}: OrderColumnOptions): ColumnDef<Order>[] => [
+}: OrderColumnOptions): ColumnDef<OrderEnriched>[] => [
   {
     id: "select",
     header: ({ table }) => (
@@ -50,12 +50,13 @@ export const orderColumns = ({
     ),
     enableSorting: false,
     enableHiding: false,
+    size: 32,
   },
   {
     accessorKey: "status",
     header: "Status",
     cell: ({ row }) => {
-      const status = row.getValue("status") as Order["status"];
+      const status = row.getValue("status") as OrderEnriched["status"];
       const dot = statusColor[status] ?? "bg-muted-foreground";
       return (
         <div className="flex items-center gap-2">
@@ -66,44 +67,55 @@ export const orderColumns = ({
     },
   },
   {
-    id: "items",
-    header: "Items",
+    accessorKey: "customer_name",
+    header: "Customer",
     cell: ({ row }) => {
-      const count = row.original.product_ids?.length ?? 0;
-      return <div>{count}</div>;
+      const name = row.getValue("customer_name") as string | null;
+      return <div>{name || "—"}</div>;
     },
   },
   {
-    accessorKey: "total_amount",
-    header: "Total",
+    id: "items",
+    header: "Items",
     cell: ({ row }) => {
-      const val = parseFloat(row.getValue("total_amount"));
+      const names = row.original.product_names ?? [];
+      if (!names.length) return <div>—</div>;
+      const preview = names.slice(0, 3).join(", ");
+      const extra = names.length > 3 ? ` +${names.length - 3}` : "";
       return (
-        <div>
-          {new Intl.NumberFormat("en-US", {
-            style: "currency",
-            currency: "USD",
-          }).format(isNaN(val) ? 0 : val)}
+        <div title={names.join(", ")}>
+          {preview}
+          {extra}
         </div>
       );
     },
   },
+
   {
     accessorKey: "created_at",
     header: "Created",
     cell: ({ row }) => {
       const v = row.getValue("created_at") as string;
-      return <div>{new Date(v).toLocaleString()}</div>;
+      return <div>{v ? new Date(v).toLocaleString() : "—"}</div>;
     },
   },
+
   {
-    accessorKey: "customer_id",
-    header: "Customer ID",
+    accessorKey: "total_amount",
+    header: "Total",
     cell: ({ row }) => {
-      const id = row.getValue("customer_id") as string;
-      return <div className="font-mono text-xs">{id}</div>;
+      const val = parseFloat(String(row.getValue("total_amount") ?? 0));
+      return (
+        <div>
+          {new Intl.NumberFormat("en-US", {
+            style: "currency",
+            currency: "USD",
+          }).format(Number.isFinite(val) ? val : 0)}
+        </div>
+      );
     },
   },
+
   {
     id: "actions",
     cell: ({ row }) => {
@@ -134,10 +146,7 @@ export const orderColumns = ({
               Copy customer ID
             </DropdownMenuItem>
             <DropdownMenuSeparator />
-            <DropdownMenuItem
-              variant="destructive"
-              onClick={() => onDeleteRowClick(order)}
-            >
+            <DropdownMenuItem onClick={() => onDeleteRowClick(order)}>
               Delete
             </DropdownMenuItem>
           </DropdownMenuContent>

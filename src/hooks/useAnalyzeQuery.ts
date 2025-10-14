@@ -20,6 +20,7 @@ export function useAnalyzeQuery() {
       },
     }),
   });
+  
 
   return { messages, setMessages, status, error, sendMessage };
 }
