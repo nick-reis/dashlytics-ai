@@ -1,11 +1,11 @@
 "use client";
 import { useEffect, useState } from "react";
 import { DataTable } from "@/components/data-table";
-import { customerColumns } from "@/components/data-table/columns/customer-columns";
+import { orderColumns } from "@/components/data-table/columns/order-columns";
 import { DashboardHeader } from "@/components/dashboard-header";
-import { EditCustomerDialog } from "@/components/edit-customer/edit-customer-dialog";
-import { Customer } from "@/types";
-import { useCustomers } from "@/hooks/useCustomers";
+import { EditOrderDialog } from "@/components/edit-order/edit-order-dialog";
+import { Order } from "@/types";
+import { useOrders } from "@/hooks/useOrders";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -19,64 +19,64 @@ import LoadIcon from "@/components/ui/load-icon";
 import { Plus, RefreshCcw, Trash } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
 
-export default function Customers() {
+export default function Orders() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const {
-    customers,
+    orders,
     initialLoading,
     loading,
-    removeCustomers,
-    editCustomer,
+    removeOrders,
+    editOrder,
     refetch,
-    createCustomer,
-  } = useCustomers();
+    createOrder,
+  } = useOrders();
 
   const [activeAddRow, setActiveAddRow] = useState<boolean>(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState<boolean>(false);
-  const [selectedCustomers, setSelectedCustomers] = useState<string[]>([]);
+  const [selectedOrders, setSelectedOrders] = useState<string[]>([]);
   const editId = searchParams.get("edit");
 
-  const columns = customerColumns({
-    onDeleteRowClick: (customer) => {
-      setSelectedCustomers((prev) =>
-        Array.from(new Set([...prev, customer.id]))
-      );
+  const columns = orderColumns({
+    onDeleteRowClick: (order) => {
+      setSelectedOrders((prev) => Array.from(new Set([...prev, order.id])));
       setDeleteDialogOpen(true);
     },
   });
 
-  const openEditDialog = (id: string) => router.push(`/customers?edit=${id}`);
-  const closeEditDialog = () => router.push("/customers");
+  const openEditDialog = (id: string) => router.push(`/orders?edit=${id}`);
+  const closeEditDialog = () => router.push("/orders");
 
-  useEffect(() => {}, [selectedCustomers]);
+  useEffect(() => {
+    // console.log(selectedOrders);
+  }, [selectedOrders]);
 
-  const selectedName =
-    selectedCustomers.length === 1
+  const selectedLabel =
+    selectedOrders.length === 1
       ? (() => {
-          const c = customers.find((x) => x.id === selectedCustomers[0]);
-          return c?.full_name || c?.email || "customer";
+          const o = orders.find((x) => x.id === selectedOrders[0]);
+          return `order ${o?.id.slice(0, 8) ?? ""}`.trim();
         })()
-      : `${selectedCustomers.length} customers`;
+      : `${selectedOrders.length} orders`;
 
   return (
     <div className="w-full h-full">
       <DashboardHeader
-        title="Customers"
+        title="Orders"
         actions={
           <div className="w-full flex flex-row gap-2 justify-end">
-            {selectedCustomers.length > 0 && deleteDialogOpen === false && (
+            {selectedOrders.length > 0 && deleteDialogOpen === false && (
               <Button
                 onClick={() => setDeleteDialogOpen(true)}
                 variant={"secondary"}
               >
                 <Trash />
-                Delete {selectedCustomers.length} customer(s)
+                Delete {selectedOrders.length} order(s)
               </Button>
             )}
             <Button onClick={() => setActiveAddRow(true)} variant={"outline"}>
               <Plus />
-              Add Customer
+              Add Order
             </Button>
             <Button
               disabled={loading || initialLoading}
@@ -97,27 +97,27 @@ export default function Customers() {
       <div className="flex flex-1">
         <div className="w-full h-screen overflow-y-auto">
           <DataTable
-            data={customers}
-            selectedIds={selectedCustomers}
-            onSelectionChange={setSelectedCustomers}
+            data={orders}
+            selectedIds={selectedOrders}
+            onSelectionChange={setSelectedOrders}
             loading={initialLoading}
             columns={columns}
-            onClickRow={(row: Customer) => openEditDialog(row.id)}
+            onClickRow={(row: Order) => openEditDialog(row.id)}
           />
         </div>
       </div>
 
       {editId && !initialLoading && (
-        <EditCustomerDialog
-          customer={customers.find((c) => c.id === editId)!}
-          onEdit={editCustomer}
+        <EditOrderDialog
+          order={orders.find((o) => o.id === editId)!}
+          onEdit={editOrder}
           close={closeEditDialog}
         />
       )}
 
       {activeAddRow && (
-        <EditCustomerDialog
-          onAdd={createCustomer}
+        <EditOrderDialog
+          onAdd={createOrder}
           close={() => setActiveAddRow(false)}
         />
       )}
@@ -126,7 +126,7 @@ export default function Customers() {
         <Dialog
           open
           onOpenChange={() => {
-            setSelectedCustomers([]);
+            setSelectedOrders([]);
             setDeleteDialogOpen(false);
           }}
         >
@@ -135,14 +135,14 @@ export default function Customers() {
               <DialogTitle>Are you sure?</DialogTitle>
               <DialogDescription>
                 This action cannot be undone. Are you sure you want to
-                permanently delete <strong>{selectedName}</strong>?
+                permanently delete <strong>{selectedLabel}</strong>?
               </DialogDescription>
             </DialogHeader>
 
             <DialogFooter className="flex gap-2">
               <Button
                 onClick={() => {
-                  setSelectedCustomers([]);
+                  setSelectedOrders([]);
                   setDeleteDialogOpen(false);
                 }}
                 variant="outline"
@@ -155,9 +155,9 @@ export default function Customers() {
                 variant="destructive"
                 disabled={loading}
                 onClick={async () => {
-                  await removeCustomers(selectedCustomers);
+                  await removeOrders(selectedOrders);
                   if (!loading) {
-                    setSelectedCustomers([]);
+                    setSelectedOrders([]);
                     setDeleteDialogOpen(false);
                   }
                 }}

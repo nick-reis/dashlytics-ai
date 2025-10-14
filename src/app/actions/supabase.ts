@@ -1,7 +1,18 @@
 "use server";
 
 import { supabase } from "@/lib/supabase";
-import { ProductSchema, CustomerSchema, OrderSchema } from "@/schemas";
+
+import { ProductSchema } from "@/schemas"; 
+import {
+  customerSchema,
+  type CustomerFormValues, 
+} from "@/schemas/customer";
+import {
+  orderSchema,
+  type OrderFormValues, 
+} from "@/schemas/order";
+
+// Return/row types
 import { Product, Customer, Order } from "@/types";
 
 /* =========================
@@ -79,7 +90,7 @@ export async function getCustomer(id: string) {
   return data as Customer;
 }
 
-export async function addCustomer(customer: CustomerSchema) {
+export async function addCustomer(customer: CustomerFormValues) {
   const { data, error } = await supabase
     .from("customers")
     .insert([customer])
@@ -88,7 +99,7 @@ export async function addCustomer(customer: CustomerSchema) {
   return data as Customer[];
 }
 
-export async function updateCustomer(id: string, customer: CustomerSchema) {
+export async function updateCustomer(id: string, customer: CustomerFormValues) {
   const { data, error } = await supabase
     .from("customers")
     .update(customer)
@@ -111,7 +122,6 @@ export async function deleteCustomers(ids: string[]) {
 /* =========================
  * ORDERS
  * ========================= */
-/***/
 
 export async function getOrders() {
   const { data, error } = await supabase
@@ -132,7 +142,7 @@ export async function getOrder(id: string) {
   return data as Order;
 }
 
-export async function addOrder(order: OrderSchema) {
+export async function addOrder(order: OrderFormValues) {
   const { data, error } = await supabase
     .from("orders")
     .insert([order])
@@ -141,7 +151,7 @@ export async function addOrder(order: OrderSchema) {
   return data as Order[];
 }
 
-export async function updateOrder(id: string, order: OrderSchema) {
+export async function updateOrder(id: string, order: OrderFormValues) {
   const { data, error } = await supabase
     .from("orders")
     .update(order)
@@ -161,7 +171,9 @@ export async function deleteOrders(ids: string[]) {
   return data as Order[];
 }
 
-
+/* =========================
+ * SAFE SELECT RPC
+ * ========================= */
 
 export async function queryDatabase(sqlQuery: string) {
   if (!sqlQuery.trim().toLowerCase().startsWith("select")) {

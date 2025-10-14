@@ -19,10 +19,13 @@ export const customerSchema = z.object({
   phone: z.string().min(3).optional().nullable(),
   first_name: z.string().min(1).optional().nullable(),
   last_name: z.string().min(1).optional().nullable(),
-  last_activity_at: z.coerce.date().optional().nullable(),
+
+
   orders_count: z.coerce.number().int().min(0).default(0),
   total_spent: z.coerce.number().min(0).default(0),
+
   shipping_address: shippingAddressSchema,
 });
 
-export type CustomerSchema = z.infer<typeof customerSchema>;
+export type CustomerFormValues = z.input<typeof customerSchema>;   // for forms/actions
+export type CustomerSchema = z.output<typeof customerSchema>;      // optional server/output type

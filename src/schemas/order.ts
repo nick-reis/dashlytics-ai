@@ -7,4 +7,5 @@ export const orderSchema = z.object({
   status: z.enum(["open", "paid", "fulfilled", "cancelled"]).default("open"),
 });
 
-export type OrderSchema = z.infer<typeof orderSchema>;
+export type OrderFormValues = z.input<typeof orderSchema>;   
+export type OrderSchema = z.output<typeof orderSchema>;    
