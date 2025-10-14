@@ -212,7 +212,10 @@ const components: Options["components"] = {
       <a
         href={href}
         onClick={handleClick}
-        className={cn("font-semibold text-primary cursor-pointer", className)}
+        className={cn(
+          "font-semibold hover:underline text-primary cursor-pointer",
+          className
+        )}
         rel={href?.startsWith("/") ? undefined : "noreferrer"}
         target={href?.startsWith("/") ? undefined : "_blank"}
         {...props}
@@ -377,6 +380,26 @@ export const Response = memo(
         ? parseIncompleteMarkdown(children)
         : children;
 
+    // ✅ Use actual origin on the client; fall back for SSR
+    const runtimeOrigin =
+      defaultOrigin ??
+      (typeof window !== "undefined"
+        ? window.location.origin
+        : "http://localhost:3000");
+
+    const linkPrefixes = allowedLinkPrefixes ?? [
+      "/",
+      "./",
+      "#",
+      "mailto:",
+      "tel:",
+      "http://",
+      "https://",
+    ];
+
+    // You can keep images permissive if desired
+    const imagePrefixes = allowedImagePrefixes ?? ["*"];
+
     return (
       <div
         className={cn(
@@ -386,10 +409,10 @@ export const Response = memo(
         {...props}
       >
         <HardenedMarkdown
-          allowedImagePrefixes={allowedImagePrefixes ?? ["*"]}
-          allowedLinkPrefixes={allowedLinkPrefixes ?? ["*", "?"]}
+          allowedImagePrefixes={imagePrefixes}
+          allowedLinkPrefixes={linkPrefixes}
+          defaultOrigin={runtimeOrigin}
           components={components}
-          defaultOrigin={defaultOrigin ?? "http://localhost:3000"}
           rehypePlugins={[rehypeKatex]}
           remarkPlugins={[remarkGfm, remarkMath]}
           {...options}
